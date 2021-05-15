@@ -9,8 +9,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -31,6 +34,7 @@ public class Main extends JFrame implements ActionListener {
     String[] difficultyChoice = {"easy", "medium", "hard"};
     String[] categoryName = {"Science & Nature", "Comics", "Anime", "General Knowledge", "Television", "Video Games", "Computers", "Sports", "Geography", "History", "Animals", "Vehicles"};
     int[] categoryIndex = {17, 29, 31, 9, 14, 15, 18, 21, 22, 23, 27, 28};
+    String[] options=new String[4];
 
 
     Object _difficulty;
@@ -42,6 +46,7 @@ public class Main extends JFrame implements ActionListener {
     HashMap<Integer, String> quizQuestionCorrectAnswersArray = new HashMap<Integer, String>();
     HashMap<Integer, String[]> quizQuestionIncorrectAnswersArray = new HashMap<Integer, String[]>();
     HashMap<Integer, String> quizQuestionIncorrectAnswers = new HashMap<Integer, String>();
+    HashMap<Integer, String[]> quizAnswerChoices = new HashMap<Integer, String[]>();
 
 
     JTextArea question;
@@ -209,7 +214,7 @@ public class Main extends JFrame implements ActionListener {
         URL url = null;
         try {
             //https://opentdb.com/api.php?amount=10&category=17&difficulty=easy
-            url = new URL("https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty);
+            url = new URL("https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=multiple");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -312,14 +317,34 @@ public class Main extends JFrame implements ActionListener {
                 quizQuestionIncorrectAnswers.put(i, _incorrect_answer.toString());
                 i++;
             }
-            for (int j = 0; j < quizQuestionArray.size(); j++) {
-
+            for (int j = 1; j <= quizQuestionArray.size(); j++) {
+                quizAnswerChoices.put(j, getOptions(quizQuestionIncorrectAnswers.get(j).substring(2,quizQuestionIncorrectAnswers.get(j).length()-2)+"%"+quizQuestionCorrectAnswersArray.get(j),3));
             }
+            System.out.println(Arrays.toString(quizAnswerChoices.get(1)));
         } catch (Exception e) {
             e.printStackTrace();
         }
         quizPanel(quizQuestionArray, 0);
 
+    }
+
+    String[] getOptions(String _answers,int i) {
+        String str=_answers.replace(",","").replace("\"\"","%");
+        try{
+            options[i]=str.substring(0,str.indexOf("%"));
+        }
+        catch (Exception e){
+            int randomNum = ThreadLocalRandom.current().nextInt(0, 3 + 1);
+            String temp=options[randomNum];
+            options[randomNum]=str;
+            options[i]=temp;
+        }
+        str=str.substring(str.indexOf("%")+1);
+        if(i!=0){
+            i--;
+            getOptions(str,i);
+        }
+        return options;
     }
 
     public static void main(String[] args) {
