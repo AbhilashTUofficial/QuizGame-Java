@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,9 +33,9 @@ public class Main extends JFrame implements ActionListener {
     String[] difficultyChoice = {"easy", "medium", "hard"};
     String[] categoryName = {"Science & Nature", "Comics", "Anime", "General Knowledge", "Television", "Video Games", "Computers", "Sports", "Geography", "History", "Animals", "Vehicles"};
     int[] categoryIndex = {17, 29, 31, 9, 14, 15, 18, 21, 22, 23, 27, 28};
-    String[] options=new String[4];
-
-
+    String[] selectedOption;
+    int questionIndex;
+    Random random = new Random();
     Object _difficulty;
     Object _question;
     Object _correct_answer;
@@ -44,18 +43,19 @@ public class Main extends JFrame implements ActionListener {
     HashMap<Integer, String> quizQuestionDifficultyArray = new HashMap<Integer, String>();
     HashMap<Integer, String> quizQuestionArray = new HashMap<Integer, String>();
     HashMap<Integer, String> quizQuestionCorrectAnswersArray = new HashMap<Integer, String>();
-    HashMap<Integer, String[]> quizQuestionIncorrectAnswersArray = new HashMap<Integer, String[]>();
-    HashMap<Integer, String> quizQuestionIncorrectAnswers = new HashMap<Integer, String>();
     HashMap<Integer, String[]> quizAnswerChoices = new HashMap<Integer, String[]>();
 
 
     JTextArea question;
     JLabel currentQuestion;
-    JCheckBox optionACheckBox;
-    JCheckBox optionBCheckBox;
-    JCheckBox optionCCheckBox;
-    JCheckBox optionDCheckBox;
+    JCheckBox optionALabel;
+    JCheckBox optionBLabel;
+    JCheckBox optionCLabel;
+    JCheckBox optionDLabel;
     JButton nextBtn;
+    JLabel scoreBoard;
+    JButton nextQuizBtn;
+    JButton tryAgainBtn;
 
 
     JComboBox difficultySelector = new JComboBox(difficultyChoice);
@@ -142,11 +142,12 @@ public class Main extends JFrame implements ActionListener {
         return panel;
     }
 
-    void quizPanel(HashMap<Integer, String> quizQuestionArray, int index) {
+    int quizPanel(String _question, HashMap<Integer, String[]> quizAnswerChoices, int index) {
         // Quiz Panel
+        String[] choice = quizAnswerChoices.get(index);
         question = new JTextArea();
         question.setBounds(80, 20, 440, 100);
-        question.setText(quizQuestionArray.get(index));
+        question.setText(_question);
         question.setForeground(Color.white);
         question.setFont(font2);
         question.setEditable(false);
@@ -155,43 +156,45 @@ public class Main extends JFrame implements ActionListener {
 
         currentQuestion = new JLabel();
         currentQuestion.setBounds(460, 330, 200, 34);
-        currentQuestion.setText(index + " out of " + quizQuestionArray.size());
+        currentQuestion.setText(index + 1 + " out of " + quizQuestionArray.size());
         currentQuestion.setForeground(Color.lightGray);
         currentQuestion.setBackground(Color.darkGray);
         currentQuestion.setFont(font);
         currentQuestion.setVisible(true);
 
-        optionACheckBox = new JCheckBox();
-        optionACheckBox.setBounds(140, 120, 400, 34);
-        optionACheckBox.setText("Option A");
-        optionACheckBox.setBackground(Color.darkGray);
-        optionACheckBox.setForeground(Color.white);
-        optionACheckBox.setFocusable(false);
-        optionACheckBox.setFont(font);
+        optionALabel = new JCheckBox();
+        optionBLabel = new JCheckBox();
+        optionCLabel = new JCheckBox();
+        optionDLabel = new JCheckBox();
 
-        optionBCheckBox = new JCheckBox();
-        optionBCheckBox.setBounds(140, 162, 400, 34);
-        optionBCheckBox.setText("Option B");
-        optionBCheckBox.setBackground(Color.darkGray);
-        optionBCheckBox.setForeground(Color.white);
-        optionBCheckBox.setFocusable(false);
-        optionBCheckBox.setFont(font);
+        optionALabel.setBounds(160, 120, 400, 34);
+        optionALabel.setText(choice[0]);
+        optionALabel.setBackground(Color.darkGray);
+        optionALabel.setForeground(Color.white);
+        optionALabel.setFocusable(false);
+        optionALabel.setFont(font);
 
-        optionCCheckBox = new JCheckBox();
-        optionCCheckBox.setBounds(140, 204, 400, 34);
-        optionCCheckBox.setText("Option C");
-        optionCCheckBox.setBackground(Color.darkGray);
-        optionCCheckBox.setForeground(Color.white);
-        optionCCheckBox.setFocusable(false);
-        optionCCheckBox.setFont(font);
+        optionBLabel.setBounds(160, 162, 400, 34);
+        optionBLabel.setText(choice[1]);
+        optionBLabel.setBackground(Color.darkGray);
+        optionBLabel.setForeground(Color.white);
+        optionBLabel.setFocusable(false);
+        optionBLabel.setFont(font);
 
-        optionDCheckBox = new JCheckBox();
-        optionDCheckBox.setBounds(140, 246, 400, 34);
-        optionDCheckBox.setText("Option D");
-        optionDCheckBox.setBackground(Color.darkGray);
-        optionDCheckBox.setForeground(Color.white);
-        optionDCheckBox.setFocusable(false);
-        optionDCheckBox.setFont(font);
+
+        optionCLabel.setBounds(160, 204, 400, 34);
+        optionCLabel.setText(choice[2]);
+        optionCLabel.setBackground(Color.darkGray);
+        optionCLabel.setForeground(Color.white);
+        optionCLabel.setFocusable(false);
+        optionCLabel.setFont(font);
+
+        optionDLabel.setBounds(160, 246, 400, 34);
+        optionDLabel.setText(choice[3]);
+        optionDLabel.setBackground(Color.darkGray);
+        optionDLabel.setForeground(Color.white);
+        optionDLabel.setFocusable(false);
+        optionDLabel.setFont(font);
 
         nextBtn = new JButton();
         nextBtn.setBounds(240, 300, 140, 34);
@@ -201,13 +204,40 @@ public class Main extends JFrame implements ActionListener {
         nextBtn.addActionListener(this);
 
 
+
         panel.add(question);
         panel.add(currentQuestion);
-        panel.add(optionACheckBox);
-        panel.add(optionBCheckBox);
-        panel.add(optionCCheckBox);
-        panel.add(optionDCheckBox);
+        panel.add(optionALabel);
+        panel.add(optionBLabel);
+        panel.add(optionCLabel);
+        panel.add(optionDLabel);
         panel.add(nextBtn);
+        return index + 1;
+    }
+
+    void quizCompleted() {
+        scoreBoard = new JLabel();
+        nextQuizBtn = new JButton();
+        tryAgainBtn = new JButton();
+
+        scoreBoard.setText("Score: " + 10);
+        scoreBoard.setFont(font2);
+        scoreBoard.setForeground(Color.white);
+        scoreBoard.setBounds(240, 120, 200, 50);
+
+        nextQuizBtn.setText("Next Quiz");
+        nextQuizBtn.setBounds(340, 260, 160, 34);
+        nextQuizBtn.addActionListener(this);
+        nextQuizBtn.setFocusable(false);
+
+        tryAgainBtn.setText("Try Again");
+        tryAgainBtn.setBounds(120, 260, 160, 34);
+        tryAgainBtn.addActionListener(this);
+        tryAgainBtn.setFocusable(false);
+
+        panel.add(scoreBoard);
+        panel.add(nextQuizBtn);
+        panel.add(tryAgainBtn);
     }
 
     public URL generateUrl(int category, String difficulty, int amount) {
@@ -314,37 +344,41 @@ public class Main extends JFrame implements ActionListener {
                 quizQuestionDifficultyArray.put(i, _difficulty.toString());
                 quizQuestionArray.put(i, _question.toString());
                 quizQuestionCorrectAnswersArray.put(i, _correct_answer.toString());
-                quizQuestionIncorrectAnswers.put(i, _incorrect_answer.toString());
+                getOptions(_correct_answer.toString(), _incorrect_answer.toString(), i);
                 i++;
             }
-            for (int j = 1; j <= quizQuestionArray.size(); j++) {
-                quizAnswerChoices.put(j, getOptions(quizQuestionIncorrectAnswers.get(j).substring(2,quizQuestionIncorrectAnswers.get(j).length()-2)+"%"+quizQuestionCorrectAnswersArray.get(j),3));
-            }
-            System.out.println(Arrays.toString(quizAnswerChoices.get(1)));
+            selectedOption=new String[quizQuestionArray.size()];
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        quizPanel(quizQuestionArray, 0);
+
 
     }
 
-    String[] getOptions(String _answers,int i) {
-        String str=_answers.replace(",","").replace("\"\"","%");
-        try{
-            options[i]=str.substring(0,str.indexOf("%"));
+    void getOptions(String _correct_answer, String _incorrect_answer, int i) {
+
+        String[] options = new String[4];
+        String input = _incorrect_answer.substring(2, _incorrect_answer.length() - 2);
+        input = input.replace("\",\"", ",");
+        String opt1 = input.substring(0, input.indexOf(","));
+        input = input.substring(input.indexOf(",") + 1, input.length());
+        String opt2 = input.substring(0, input.indexOf(","));
+        input = input.substring(input.indexOf(",") + 1, input.length());
+        String opt3 = input;
+        String[] temp = {opt1, opt2, opt3};
+        int k = 0;
+
+        options[random.nextInt(4)] = _correct_answer;
+        for (int j = 0; j < 4; j++) {
+            if (options[j] == null) {
+                options[j] = temp[k];
+                k++;
+            }
         }
-        catch (Exception e){
-            int randomNum = ThreadLocalRandom.current().nextInt(0, 3 + 1);
-            String temp=options[randomNum];
-            options[randomNum]=str;
-            options[i]=temp;
-        }
-        str=str.substring(str.indexOf("%")+1);
-        if(i!=0){
-            i--;
-            getOptions(str,i);
-        }
-        return options;
+        quizAnswerChoices.put(i, options);
+        System.out.println(Arrays.toString(options));
+
     }
 
     public static void main(String[] args) {
@@ -372,30 +406,42 @@ public class Main extends JFrame implements ActionListener {
             StringBuffer content = fetchJSON(url);
             writeJSONToFile(content);
             readJSONFromFile();
-
-
-//            try {
-//                Thread.sleep(600);
-//            } catch (InterruptedException x) {
-//                x.printStackTrace();
-//            }
-//            finally {
-//               // System.exit(0);
-//            }
-
         }
         if (e.getSource() == nextBtn) {
             panel.remove(question);
             panel.remove(currentQuestion);
-            panel.remove(optionACheckBox);
-            panel.remove(optionBCheckBox);
-            panel.remove(optionCCheckBox);
-            panel.remove(optionDCheckBox);
+            panel.remove(optionALabel);
+            panel.remove(optionBLabel);
+            panel.remove(optionCLabel);
+            panel.remove(optionDLabel);
             panel.remove(nextBtn);
             panel.repaint();
-            quizPanel(quizQuestionArray, Integer.parseInt(nextBtn.getName()) + 1);
-            System.out.println(Integer.parseInt(nextBtn.getName()) + 1);
+            try {
+                questionIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex);
 
+            } catch (Exception endOfQuiz) {
+                quizCompleted();
+            }
+        }
+        if (e.getSource() == tryAgainBtn) {
+            panel.remove(scoreBoard);
+            panel.remove(tryAgainBtn);
+            panel.remove(nextQuizBtn);
+            panel.repaint();
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
+        }
+        if (e.getSource() == nextQuizBtn) {
+            panel.remove(scoreBoard);
+            panel.remove(tryAgainBtn);
+            panel.remove(nextQuizBtn);
+            panel.repaint();
+            panel.add(difficultyLabel);
+            panel.add(difficultySelector);
+            panel.add(categoryLabel);
+            panel.add(categorySelector);
+            panel.add(questionNum);
+            panel.add(questionNumInput);
+            panel.add(startQuizBtn);
         }
     }
 }
