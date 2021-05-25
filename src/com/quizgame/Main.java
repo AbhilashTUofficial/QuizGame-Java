@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -21,8 +23,7 @@ import org.json.simple.parser.*;
 public class Main extends JFrame implements ActionListener {
     Font font = new Font("Arial", Font.BOLD, 16);
     Font font2 = new Font("Arial", Font.BOLD, 24);
-
-
+    int score=0;
     JPanel panel;
     JLabel difficultyLabel;
     JLabel questionNum;
@@ -66,6 +67,7 @@ public class Main extends JFrame implements ActionListener {
         setResizable(false);
         setLayout(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setAlwaysOnTop(true);
         add(panel());
         setVisible(true);
     }
@@ -142,9 +144,11 @@ public class Main extends JFrame implements ActionListener {
         return panel;
     }
 
-    int quizPanel(String _question, HashMap<Integer, String[]> quizAnswerChoices, int index) {
+    int[] quizPanel(String _question, HashMap<Integer, String[]> quizAnswerChoices, int index) {
+
         // Quiz Panel
         String[] choice = quizAnswerChoices.get(index);
+
         question = new JTextArea();
         question.setBounds(80, 20, 440, 100);
         question.setText(_question);
@@ -173,6 +177,17 @@ public class Main extends JFrame implements ActionListener {
         optionALabel.setForeground(Color.white);
         optionALabel.setFocusable(false);
         optionALabel.setFont(font);
+        optionALabel.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {//checkbox has been selected
+                String[] _chosenAnswerArray=quizAnswerChoices.get(index);
+                String _chosenAnswer=_chosenAnswerArray[0];
+                System.out.println(_chosenAnswer+"!!!");
+                optionBLabel.setSelected(false);
+                optionCLabel.setSelected(false);
+                optionDLabel.setSelected(false);
+            }
+        });
+
 
         optionBLabel.setBounds(160, 162, 400, 34);
         optionBLabel.setText(choice[1]);
@@ -180,6 +195,13 @@ public class Main extends JFrame implements ActionListener {
         optionBLabel.setForeground(Color.white);
         optionBLabel.setFocusable(false);
         optionBLabel.setFont(font);
+        optionBLabel.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {
+                optionALabel.setSelected(false);
+                optionCLabel.setSelected(false);
+                optionDLabel.setSelected(false);
+            }
+        });
 
 
         optionCLabel.setBounds(160, 204, 400, 34);
@@ -188,6 +210,13 @@ public class Main extends JFrame implements ActionListener {
         optionCLabel.setForeground(Color.white);
         optionCLabel.setFocusable(false);
         optionCLabel.setFont(font);
+        optionCLabel.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {
+                optionBLabel.setSelected(false);
+                optionALabel.setSelected(false);
+                optionDLabel.setSelected(false);
+            }
+        });
 
         optionDLabel.setBounds(160, 246, 400, 34);
         optionDLabel.setText(choice[3]);
@@ -195,6 +224,14 @@ public class Main extends JFrame implements ActionListener {
         optionDLabel.setForeground(Color.white);
         optionDLabel.setFocusable(false);
         optionDLabel.setFont(font);
+        optionDLabel.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {
+                optionBLabel.setSelected(false);
+                optionCLabel.setSelected(false);
+                optionALabel.setSelected(false);
+            }
+        });
+
 
         nextBtn = new JButton();
         nextBtn.setBounds(240, 300, 140, 34);
@@ -212,7 +249,16 @@ public class Main extends JFrame implements ActionListener {
         panel.add(optionCLabel);
         panel.add(optionDLabel);
         panel.add(nextBtn);
-        return index + 1;
+        if(optionALabel.isSelected()){
+            return new int[]{index + 1, 0};
+        }else if(optionBLabel.isSelected()){
+            return new int[]{index + 1, 1};
+        }else if(optionCLabel.isSelected()){
+            return new int[]{index + 1, 2};
+        }else if(optionDLabel.isSelected()){
+            return new int[]{index + 1, 3};
+        }
+        return new int[]{index + 1, 0};
     }
 
     void quizCompleted() {
@@ -220,7 +266,7 @@ public class Main extends JFrame implements ActionListener {
         nextQuizBtn = new JButton();
         tryAgainBtn = new JButton();
 
-        scoreBoard.setText("Score: " + 10);
+        scoreBoard.setText("Score: " + score);
         scoreBoard.setFont(font2);
         scoreBoard.setForeground(Color.white);
         scoreBoard.setBounds(240, 120, 200, 50);
@@ -348,7 +394,7 @@ public class Main extends JFrame implements ActionListener {
                 i++;
             }
             selectedOption=new String[quizQuestionArray.size()];
-            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0)[0];
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -377,7 +423,6 @@ public class Main extends JFrame implements ActionListener {
             }
         }
         quizAnswerChoices.put(i, options);
-        System.out.println(Arrays.toString(options));
 
     }
 
@@ -417,8 +462,12 @@ public class Main extends JFrame implements ActionListener {
             panel.remove(nextBtn);
             panel.repaint();
             try {
-                questionIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex);
-
+                questionIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex)[0];
+                int _chosenAnswerIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex)[1];
+                System.out.println(_chosenAnswerIndex);
+                if(_chosenAnswerIndex!=9){
+                    System.out.println(quizAnswerChoices.get(questionIndex)[_chosenAnswerIndex]);
+                }
             } catch (Exception endOfQuiz) {
                 quizCompleted();
             }
@@ -428,7 +477,7 @@ public class Main extends JFrame implements ActionListener {
             panel.remove(tryAgainBtn);
             panel.remove(nextQuizBtn);
             panel.repaint();
-            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0)[0];
         }
         if (e.getSource() == nextQuizBtn) {
             panel.remove(scoreBoard);
