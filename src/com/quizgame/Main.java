@@ -5,13 +5,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -144,7 +142,7 @@ public class Main extends JFrame implements ActionListener {
         return panel;
     }
 
-    int[] quizPanel(String _question, HashMap<Integer, String[]> quizAnswerChoices, int index) {
+    int quizPanel(String _question, HashMap<Integer, String[]> quizAnswerChoices, int index) {
 
         // Quiz Panel
         String[] choice = quizAnswerChoices.get(index);
@@ -181,7 +179,7 @@ public class Main extends JFrame implements ActionListener {
             if(e.getStateChange() == ItemEvent.SELECTED) {//checkbox has been selected
                 String[] _chosenAnswerArray=quizAnswerChoices.get(index);
                 String _chosenAnswer=_chosenAnswerArray[0];
-                System.out.println(_chosenAnswer+"!!!");
+//                System.out.println(_chosenAnswer+"!!!");
                 optionBLabel.setSelected(false);
                 optionCLabel.setSelected(false);
                 optionDLabel.setSelected(false);
@@ -249,16 +247,7 @@ public class Main extends JFrame implements ActionListener {
         panel.add(optionCLabel);
         panel.add(optionDLabel);
         panel.add(nextBtn);
-        if(optionALabel.isSelected()){
-            return new int[]{index + 1, 0};
-        }else if(optionBLabel.isSelected()){
-            return new int[]{index + 1, 1};
-        }else if(optionCLabel.isSelected()){
-            return new int[]{index + 1, 2};
-        }else if(optionDLabel.isSelected()){
-            return new int[]{index + 1, 3};
-        }
-        return new int[]{index + 1, 0};
+        return index+1;
     }
 
     void quizCompleted() {
@@ -341,13 +330,13 @@ public class Main extends JFrame implements ActionListener {
 
     public void writeJSONToFile(StringBuffer content) {
 
-        System.out.println(content);
+//        System.out.println(content);
         try {
             File writeToFile = new File("quiz_data.json");
             if (writeToFile.createNewFile()) {
-                System.out.println("File created: " + writeToFile.getName());
+//                System.out.println("File created: " + writeToFile.getName());
             } else {
-                System.out.println("File already exists.");
+//                System.out.println("File already exists.");
             }
         } catch (IOException ex) {
             System.out.println("An error occurred.");
@@ -357,7 +346,7 @@ public class Main extends JFrame implements ActionListener {
             FileWriter myWriter = new FileWriter("quiz_data.json");
             myWriter.write(String.valueOf(content));
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+//            System.out.println("Successfully wrote to the file.");
         } catch (IOException exx) {
             System.out.println("An error occurred.");
             exx.printStackTrace();
@@ -394,7 +383,7 @@ public class Main extends JFrame implements ActionListener {
                 i++;
             }
             selectedOption=new String[quizQuestionArray.size()];
-            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0)[0];
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -423,7 +412,6 @@ public class Main extends JFrame implements ActionListener {
             }
         }
         quizAnswerChoices.put(i, options);
-
     }
 
     public static void main(String[] args) {
@@ -462,12 +450,11 @@ public class Main extends JFrame implements ActionListener {
             panel.remove(nextBtn);
             panel.repaint();
             try {
-                questionIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex)[0];
-                int _chosenAnswerIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex)[1];
-                System.out.println(_chosenAnswerIndex);
-                if(_chosenAnswerIndex!=9){
-                    System.out.println(quizAnswerChoices.get(questionIndex)[_chosenAnswerIndex]);
-                }
+                questionIndex = quizPanel(quizQuestionArray.get(questionIndex), quizAnswerChoices, questionIndex);
+                System.out.println(optionALabel.isSelected());
+                System.out.println(optionBLabel.isSelected());
+                System.out.println(optionCLabel.isSelected());
+                System.out.println(optionDLabel.isSelected());
             } catch (Exception endOfQuiz) {
                 quizCompleted();
             }
@@ -477,7 +464,7 @@ public class Main extends JFrame implements ActionListener {
             panel.remove(tryAgainBtn);
             panel.remove(nextQuizBtn);
             panel.repaint();
-            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0)[0];
+            questionIndex = quizPanel(quizQuestionArray.get(0), quizAnswerChoices, 0);
         }
         if (e.getSource() == nextQuizBtn) {
             panel.remove(scoreBoard);
