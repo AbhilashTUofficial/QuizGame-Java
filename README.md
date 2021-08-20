@@ -6,8 +6,8 @@ A simple and complete GUI version of a quiz game created with trivabase api
 [<img align="left" alt="Intellij" width="26px" src="./Img/intellij.png">][link]
 [<img align="left" alt="java" width="26px" src="./Img/java.png">][link]
 <br/><br/>
-![GitHub last commit](https://img.shields.io/github/last-commit/Ncas-CS/QuizGame-Java?color=blue&label=Last%20Commit%3A&style=for-the-badge)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Ncas-CS/QuizGame-Java?label=Repo%20Size%3A&style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/AbhilashTUofficial/QuizGame-Java?color=blue&label=Last%20Commit%3A&style=for-the-badge)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/AbhilashTUofficial/QuizGame-Java?label=Repo%20Size%3A&style=for-the-badge)
 | Screenshot 1 | Screenshot 2|
 |------|------|
 |<img src="./Img/quizGame1.png" width="300">|<img src="./Img/quizGame2.png" width="300">|
